@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jun  8 15:15:22 2017
+
+@author: mmrosek
+"""
+
+import cv2
+import pprint
+import imageio
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+### Read in video file and convert frames to RGB ###
+
+def read_in_video(video_path, color, max_frames=np.inf):
+    
+    # Read in video
+    reader = imageio.get_reader(str(video_path))
+
+    # Generates dictionary containing information about video
+    info_dict = reader.get_meta_data()
+    
+    height, width = info_dict['size']
+    
+    # Determine number of frames to extract
+    if max_frames < np.inf:
+        nframes = max_frames
+    else:
+        nframes = info_dict['nframes']
+    
+    if color in "RGBrgb":
+        
+        # Pre-allocates array for video file to populate with rgb frames
+        video_array = np.zeros(shape=(nframes, height, width, 3), dtype=np.uint8)
+    
+        # Populate video_array with video frames
+        for idx, im in enumerate(reader):
+            video_array[idx] = im
+            if idx >= nframes-1:
+                break
+            
+    else:
+        video_array = np.zeros(shape=(nframes, height, width), dtype=np.uint8)
+        for idx, im in enumerate(reader):
+            # Converts rgb frames to grayscale
+            video_array[idx] = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+            if idx >= nframes-1:
+                break
+    
+    return(video_array)
+
+import time
+start = time.time()
+video_frames = read_in_video("/home/mmrosek/Documents/shannon_vids/DsRed2-HeLa_4_5_LLO2 (Converted).mov", "gray")
+end=time.time()
+print(end-start)
+
+# Alternative way to read in video
+vid = cv2.VideoCapture("/home/mmrosek/Documents/shannon_vids/DsRed2-HeLa_4_5_LLO2 (Converted).mov")
+frame_gray = cv2.cvtColor(first_frame[1], cv2.COLOR_BGR2GRAY)
+plt.imshow(frame_gray, cmap = 'gray')
+frame_gray.shape
